@@ -1,0 +1,96 @@
+plugins {
+    id 'java'
+    id 'idea'
+    id "io.qameta.allure" version "2.11.2"
+}
+
+sourceCompatibility = '11'
+
+group 'com.clickup'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+
+}
+
+def selenideVersion = '6.9.0',
+    allureVersion = '2.20.1',
+    assertjVersion = '3.23.1',
+    hamcrestVersion = "1.3",
+    jacksonVersion = '2.14.0',
+    junitVersion = '5.9.0',
+    javaFakerVersion = "1.0.2",
+    ownerVersion = "1.0.12",
+    restAssuredVersion = '5.2.0',
+    slf4jVersion = '2.0.3',
+    jsonVersion = '20220924',
+    openCSVVersion = '5.7.1',
+    lombokVersion = '1.18.24',
+    aspectjWeaverVersion = '1.9.19'
+
+
+dependencies {
+
+    implementation(
+            "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
+            "com.github.javafaker:javafaker:$javaFakerVersion",
+            "com.codeborne:selenide:$selenideVersion",
+            "io.qameta.allure:allure-selenide:$allureVersion",
+            "io.qameta.allure:allure-rest-assured:$allureVersion",
+            "io.rest-assured:rest-assured:$restAssuredVersion",
+            "org.junit.jupiter:junit-jupiter:$junitVersion",
+            "org.assertj:assertj-core:$assertjVersion",
+            "org.hamcrest:hamcrest-all:$hamcrestVersion",
+            "org.aeonbits.owner:owner:$ownerVersion",
+            "org.slf4j:slf4j-api:$slf4jVersion",
+            "org.slf4j:slf4j-simple:$slf4jVersion",
+            "org.json:json:$jsonVersion",
+            "com.opencsv:opencsv:$openCSVVersion",
+            "org.projectlombok:lombok:$lombokVersion"
+    )
+
+    annotationProcessor(
+            "org.projectlombok:lombok:$lombokVersion"
+    )
+
+    runtimeOnly (
+            "org.aspectj:aspectjweaver:$aspectjWeaverVersion"
+    )
+
+}
+
+allure {
+    report {
+        version.set("$allureVersion") //версия Allure Report (https://github.com/allure-framework/allure2)
+    }
+    adapter {
+        aspectjWeaver.set(true) // обработка аннотации @Step
+        frameworks {
+            junit5 {
+                adapterVersion.set("$allureVersion") //версия Allure JUnit5 (https://github.com/allure-framework/allure-java)
+            }
+        }
+    }
+}
+
+test {
+
+    systemProperties(System.getProperties())
+    // Позволяет передавать в тест системные проперти. Передаются '-Dbrowser = opera', а читаются 'System.getProperty("browser");'
+
+    useJUnitPlatform()
+
+    testLogging {
+        lifecycle {
+            events "started", "skipped", "failed", "standard_error", "standard_out"
+            exceptionFormat "short"
+        }
+    }
+}
+
+compileJava.options.encoding = 'UTF-8'
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
